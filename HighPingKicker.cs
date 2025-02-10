@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Microsoft.Extensions.Logging;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
@@ -7,19 +6,19 @@ using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Entities;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
-using CounterStrikeSharp.API;
+using Microsoft.Extensions.Logging;
 
 namespace HighPingKicker;
-[MinimumApiVersion(189)]
+[MinimumApiVersion(300)]
 
-public class HighPingKickerPlugin : BasePlugin, IPluginConfig<HighPingKickerConfig>
+public class HighPingKickerPlugin : BasePlugin, IPluginConfig<BaseConfigs>
 {
     public override string ModuleName => "High Ping Kicker";
-    public override string ModuleVersion => "0.0.6";
-    public override string ModuleAuthor => "conch";
+    public override string ModuleVersion => "0.0.7";
+    public override string ModuleAuthor => "conch (forked by luca.uy)";
     public override string ModuleDescription => "Kicks users with high ping";
 
-    public HighPingKickerConfig Config { get; set; } = new();
+    public BaseConfigs Config { get; set; } = new();
     public Dictionary<int, PlayerInfo> Slots = new();
     public class PlayerInfo
     {
@@ -33,7 +32,7 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<HighPingKickerConf
         }
     }
 
-    public void OnConfigParsed(HighPingKickerConfig config)
+    public void OnConfigParsed(BaseConfigs config)
     {
         Config = config;
     }
@@ -58,10 +57,8 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<HighPingKickerConf
 
     private void OnMapStartHandler(string mapName)
     {
-        // server grace period start
         AddTimer(Config.GracePeriod, () =>
         {
-            // server grace period end
             AddTimer(Config.CheckInterval, CheckPings, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
         });
     }
@@ -76,7 +73,10 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<HighPingKickerConf
     [GameEventHandler]
     public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
     {
-        Reset(@event.Userid);
+        if (@event.Userid != null)
+        {
+            Reset(@event.Userid);
+        }
         return HookResult.Continue;
     }
 
@@ -97,14 +97,14 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<HighPingKickerConf
 
     private void CheckPings()
     {
-        if (Config.DevMode)
+        if (Config.EnableDebug)
         {
             Logger.LogInformation("-------------------------------");
             Logger.LogInformation("Checking player's pings");
             Logger.LogInformation("-------------------------------");
         }
         GetPlayers().ForEach(CheckPing);
-        if (Config.DevMode)
+        if (Config.EnableDebug)
         { 
             Logger.LogInformation("-------------------------------");
         }
@@ -112,12 +112,12 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<HighPingKickerConf
 
     private void CheckPing(CCSPlayerController player)
     { 
-        if (Config.DevMode)
+        if (Config.EnableDebug)
             Logger.LogInformation("Name: {name}, Ping: {ping}, SteamID: {steamid}, Slot: {slot}", player.PlayerName, player.Ping, player.SteamID, player.Slot);
 
         if (!Slots.TryGetValue(player.Slot, out var playerInfo))
         {
-            if (Config.DevMode)
+            if (Config.EnableDebug)
             {
                 Logger.LogError("Player {player} ({steamid}) PlayerInfo slot not found.", player.PlayerName, player.SteamID);
                 Logger.LogInformation("Existing PlayerInfo slots...");
@@ -169,17 +169,4 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<HighPingKickerConf
             .Replace("{PING}", player.Ping.ToString())
             .Replace("{MAXPING}", Config.MaxPing.ToString());
     }
-}
-
-public class HighPingKickerConfig : BasePluginConfig
-{ 
-    [JsonPropertyName("max_ping")] public int MaxPing { get; set; } = 150;
-    [JsonPropertyName("max_warnings")] public int MaxWarnings { get; set; } = 5;
-    [JsonPropertyName("check_interval")] public float CheckInterval { get; set; } = 20;
-    [JsonPropertyName("show_warnings")] public bool ShowWarnings { get; set; } = true; 
-    [JsonPropertyName("show_public_kick_message")] public bool ShowPublicKickMessage { get; set; } = true; 
-    [JsonPropertyName("warning_message")] public string WarningMessage { get; set; } = "You will be kicked for excessive ping. You have {WARN} out of {MAXWARN} warnings.";
-    [JsonPropertyName("kick_message")] public string KickMessage { get; set; } = "{NAME} has been kicked due to excessive ping.";
-    [JsonPropertyName("grace_period_seconds")] public float GracePeriod { get; set; } = 90;
-    [JsonPropertyName("dev")] public bool DevMode { get; set; } = false;
 }
