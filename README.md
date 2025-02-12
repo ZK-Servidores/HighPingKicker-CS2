@@ -1,10 +1,6 @@
 # High Ping Kicker
 Inspired by SourceMod plugins [Very Basic High Ping Kicker](https://forums.alliedmods.net/showthread.php?p=769939) and [High Ping Kicker](https://github.com/ZK-Servidores/High-Ping-Kicker)
 
-## Features
- - Admin immunity (anyone with any flag or group is immune)
- - Grace period on map change and when first connected
-
 ## Installation
 1. Install [CounterStrike Sharp](https://github.com/roflmuffin/CounterStrikeSharp) and [Metamod:Source](https://www.sourcemm.net/downloads.php/?branch=master).
 
