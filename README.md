@@ -1,5 +1,5 @@
 # High Ping Kicker
-Inspired by SourceMod plugins [Very Basic High Ping Kicker](https://forums.alliedmods.net/showthread.php?p=769939) and [High Ping Kicker](https://github.com/ZK-Servidores/High-Ping-Kicker)
+Inspired by SourceMod plugins **[Very Basic High Ping Kicker](https://forums.alliedmods.net/showthread.php?p=769939)** and **[High Ping Kicker](https://github.com/ZK-Servidores/High-Ping-Kicker)**
 
 ## Features
  - Admin immunity ***(anyone with any flag or group is immune)***
@@ -39,7 +39,7 @@ When the plugin is first loaded, the following config will be generated in **`co
 #### Available message variables
  - `{NAME}`
  - `{WARN}`
- - `{MAXWARN}``
+ - `{MAXWARN}`
  - `{PING}`
  - `{MAXPING}`
  
