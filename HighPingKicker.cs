@@ -45,6 +45,7 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<BaseConfigs>
 
         RegisterListener<Listeners.OnMapStart>(OnMapStartHandler);
     }
+	
     private List<CCSPlayerController> GetPlayers()
     {
         return Utilities.GetPlayers().FindAll(p => p is { 
@@ -62,6 +63,7 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<BaseConfigs>
             AddTimer(Config.CheckInterval, CheckPings, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
         });
     }
+	
     public override void Unload(bool hotReload)
     {
         foreach (var slot in Slots)
@@ -136,7 +138,6 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<BaseConfigs>
 
         if (player.Ping > Config.MaxPing)
             HandleExcessivePing(player, playerInfo);
-
     }
     
     public void HandleExcessivePing(CCSPlayerController player, PlayerInfo playerInfo)
