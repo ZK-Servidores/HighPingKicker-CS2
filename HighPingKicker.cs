@@ -91,6 +91,8 @@ public class HighPingKickerPlugin : BasePlugin, IPluginConfig<BaseConfigs>
         playerInfo.WarningsGiven = 0;
         playerInfo.Timer?.Kill();
         playerInfo.Timer = new Timer(Config.GracePeriod, () => playerInfo.IsInGracePeriod = false);
+        var adminManager = AdminManager.GetPlayerAdminData(new SteamID(player.SteamID));
+        playerInfo.IsAdmin = (adminManager?.Groups.Count ?? 0) + (adminManager?.Flags.Count ?? 0) + AdminManager.GetPlayerImmunity(player) > 0;
     }
 
     private void CheckPings()
